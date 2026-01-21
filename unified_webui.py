@@ -2,6 +2,7 @@ import random
 import numpy as np
 import torch
 import gradio as gr
+from fastapi.responses import FileResponse
 from chatterbox.tts import ChatterboxTTS
 from chatterbox.tts_turbo import ChatterboxTurboTTS
 from chatterbox.mtl_tts import ChatterboxMultilingualTTS, SUPPORTED_LANGUAGES
@@ -452,7 +453,8 @@ with gr.Blocks(
                         choices=get_tts_voice_dropdown_options(),
                         value="female_podcast",
                         label="Sample Voice",
-                        info="Select a sample voice to use as reference"
+                        info="Select a sample voice to use as reference",
+                        filterable=False
                     )
                     
                     tts_ref_wav = gr.Audio(sources=["upload", "microphone"], type="filepath", label="Reference Audio File", value=get_sample_audio_path("prompts/female_random_podcast.wav"))
@@ -784,6 +786,12 @@ if __name__ == "__main__":
     
     # Create a FastAPI app to handle proxy headers more robustly
     app = FastAPI()
+    
+    @app.get("/manifest.json")
+    async def get_manifest():
+        if os.path.exists("manifest.json"):
+            return FileResponse("manifest.json")
+        return {"detail": "Not Found"}
     
     # Force HTTPS scheme if X-Forwarded-Proto is https
     @app.middleware("http")

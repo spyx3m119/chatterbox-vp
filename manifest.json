@@ -1,0 +1,8 @@
+{
+  "name": "Chatterbox-VP",
+  "short_name": "Chatterbox",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#3b82f6"
+}
