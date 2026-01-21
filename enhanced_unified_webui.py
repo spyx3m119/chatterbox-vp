@@ -988,16 +988,31 @@ with gr.Blocks(title="Chatterbox AI - Beautiful Interface", css=CUSTOM_CSS) as d
 
 if __name__ == "__main__":
     import os
+    import uvicorn
+    from fastapi import FastAPI
+    import gradio as gr
+    
     server_name = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
     server_port = int(os.getenv("GRADIO_SERVER_PORT", 7860))
     root_path = os.getenv("GRADIO_ROOT_PATH", "")
     
-    demo.queue(
-        max_size=50,
-        default_concurrency_limit=1,
-    ).launch(
-        server_name=server_name,
-        server_port=server_port,
-        root_path=root_path,
-        share=False
+    # Setup queue for progress bars and async events
+    demo.queue(max_size=50, default_concurrency_limit=1)
+    
+    # Create a FastAPI app to handle proxy headers more robustly
+    app = FastAPI()
+    
+    # Mount the Gradio app
+    app = gr.mount_gradio_app(app, demo, path=root_path)
+    
+    print(f"🚀 Starting server on {server_name}:{server_port}")
+    if root_path:
+        print(f"📍 Root path: {root_path}")
+        
+    uvicorn.run(
+        app, 
+        host=server_name, 
+        port=server_port, 
+        forwarded_allow_ips="*",
+        proxy_headers=True
     )
