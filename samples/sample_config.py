@@ -20,7 +20,7 @@ EVENT_TAGS = [
 # Language configuration for multilingual TTS
 LANGUAGE_CONFIG = {
     "ar": {
-        "audio": "mtl_prompts/ar_f/ar_prompts2.flac",
+        "audio": "mtl_prompts/ar_prompts2.flac",
         "text": "في الشهر الماضي، وصلنا إلى معلم جديد بمليارين من المشاهدات على قناتنا على يوتيوب."
     },
     "da": {
@@ -64,7 +64,7 @@ LANGUAGE_CONFIG = {
         "text": "Il mese scorso abbiamo raggiunto un nuovo traguardo: due miliardi di visualizzazioni sul nostro canale YouTube."
     },
     "ja": {
-        "audio": "mtl_prompts/ja/ja_prompts1.flac",
+        "audio": "mtl_prompts/ja_prompts1.flac",
         "text": "先月、私たちのYouTubeチャンネルで二十億回の再生回数という新たなマイルストーンに到達しました。"
     },
     "ko": {

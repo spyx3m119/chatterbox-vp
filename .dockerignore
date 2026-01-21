@@ -11,11 +11,6 @@ ENV/
 .github/
 .DS_Store
 # Include sample files
-!samples/prompts/
-!samples/mtl_prompts/
-!*.wav
-!*.flac
-!*.mp3
 # We want these for the webui to work correctly out of the box
 
 src/chatterbox_tts.egg-info/
