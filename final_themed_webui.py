@@ -476,6 +476,8 @@ with gr.Blocks(
     theme=chatterbox_theme,
     css=CUSTOM_CSS
 ) as demo:
+    gr.HTML('<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">')
+    gr.HTML('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">')
     gr.Markdown("# <div class='animate-fade-in'>Chatterbox AI Voice Studio</div>")
     gr.Markdown("### <div class='animate-slide-up'>A unified interface for all Chatterbox TTS and Voice Conversion features.</div>")
     
@@ -868,6 +870,13 @@ if __name__ == "__main__":
     
     # Create a FastAPI app to handle proxy headers more robustly
     app = FastAPI()
+    
+    # Force HTTPS scheme if X-Forwarded-Proto is https
+    @app.middleware("http")
+    async def force_https_middleware(request, call_next):
+        if request.headers.get("x-forwarded-proto") == "https":
+            request.scope["scheme"] = "https"
+        return await call_next(request)
     
     # Mount the Gradio app
     app = gr.mount_gradio_app(app, demo, path=root_path)

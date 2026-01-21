@@ -167,9 +167,6 @@ def get_supported_languages_display() -> str:
 
 # Enhanced CSS with Dashboard-style design inspired by ReactWind template
 CUSTOM_CSS = """
-/* Import Tailwind CSS */
-@import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
-
 /* Dashboard Layout Styles */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -636,6 +633,8 @@ def validate_sample_files_on_startup():
 validate_sample_files_on_startup()
 
 with gr.Blocks(title="Chatterbox AI - Beautiful Interface", css=CUSTOM_CSS) as demo:
+    gr.HTML('<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">')
+    gr.HTML('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">')
     gr.Markdown("# <div class='dashboard-header'>Chatterbox AI Voice Studio</div>")
     gr.Markdown("### <div class='section-title'>A unified interface for all Chatterbox TTS and Voice Conversion features.</div>")
     
@@ -1001,6 +1000,13 @@ if __name__ == "__main__":
     
     # Create a FastAPI app to handle proxy headers more robustly
     app = FastAPI()
+    
+    # Force HTTPS scheme if X-Forwarded-Proto is https
+    @app.middleware("http")
+    async def force_https_middleware(request, call_next):
+        if request.headers.get("x-forwarded-proto") == "https":
+            request.scope["scheme"] = "https"
+        return await call_next(request)
     
     # Mount the Gradio app
     app = gr.mount_gradio_app(app, demo, path=root_path)

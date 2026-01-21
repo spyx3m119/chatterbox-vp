@@ -512,6 +512,7 @@ def validate_sample_files_on_startup():
 validate_sample_files_on_startup()
 
 with gr.Blocks(title="Chatterbox Unified WebUI", css=CUSTOM_CSS) as demo:
+    gr.HTML('<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">')
     gr.HTML('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">')
     gr.Markdown("# Chatterbox Unified WebUI")
     gr.Markdown("A unified interface for all Chatterbox TTS and Voice Conversion features.")
