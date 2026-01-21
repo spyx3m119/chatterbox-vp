@@ -416,7 +416,8 @@ with gr.Blocks(
                         value="female_podcast",
                         label="Sample Voice",
                         info="Select a sample voice to use as reference",
-                        elem_classes=["gr-dropdown"]
+                        elem_classes=["gr-dropdown"],
+                        filterable=False
                     )
                     
                     gr.Markdown(
