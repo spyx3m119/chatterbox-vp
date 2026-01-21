@@ -130,16 +130,6 @@ TTS_SAMPLE_VOICES = {
         "name": "Male Narration Voice",
         "audio": "prompts/male_narration.wav",
         "description": "Deep male voice with narrative style"
-    },
-    "female_conversational": {
-        "name": "Female Conversational Voice",
-        "audio": "prompts/female_conversational.wav",
-        "description": "Friendly female voice with conversational tone"
-    },
-    "male_business": {
-        "name": "Male Business Voice",
-        "audio": "prompts/male_business.wav",
-        "description": "Professional male voice with business tone"
     }
 }
 
