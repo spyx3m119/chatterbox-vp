@@ -101,6 +101,12 @@ ta.save("test-2.wav", wav, model.sr)
 ```
 See `example_tts.py` and `example_vc.py` for more examples.
 
+## Deployment (Docker & HTTPS Proxy)
+If you are deploying behind a reverse proxy (like Coolify, Nginx, or Caddy) with HTTPS, you may encounter "Mixed Content" errors. To fix this:
+1. Ensure your proxy sends the `X-Forwarded-Proto: https` header.
+2. Set the environment variable `GRADIO_ROOT_PATH` (usually to `/` or an empty string).
+3. In Docker Compose, ensure the `GRADIO_SERVER_NAME` is set to `0.0.0.0`.
+
 ## Supported Languages 
 Arabic (ar) • Danish (da) • German (de) • Greek (el) • English (en) • Spanish (es) • Finnish (fi) • French (fr) • Hebrew (he) • Hindi (hi) • Italian (it) • Japanese (ja) • Korean (ko) • Malay (ms) • Dutch (nl) • Norwegian (no) • Polish (pl) • Portuguese (pt) • Russian (ru) • Swedish (sv) • Swahili (sw) • Turkish (tr) • Chinese (zh)
 

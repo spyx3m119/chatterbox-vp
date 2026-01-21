@@ -862,6 +862,7 @@ if __name__ == "__main__":
     import os
     server_name = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
     server_port = int(os.getenv("GRADIO_SERVER_PORT", 7860))
+    root_path = os.getenv("GRADIO_ROOT_PATH", "")
     
     demo.queue(
         max_size=50,
@@ -869,5 +870,6 @@ if __name__ == "__main__":
     ).launch(
         server_name=server_name,
         server_port=server_port,
+        root_path=root_path,
         share=False
     )

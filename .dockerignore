@@ -10,12 +10,14 @@ ENV/
 .git/
 .github/
 .DS_Store
-*.wav
-*.flac
-*.mp3
-samples/prompts/
-samples/mtl_prompts/
-!samples/sample_config.py
+# Include sample files
+!samples/prompts/
+!samples/mtl_prompts/
+!*.wav
+!*.flac
+!*.mp3
+# We want these for the webui to work correctly out of the box
+
 src/chatterbox_tts.egg-info/
 build/
 dist/
