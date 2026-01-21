@@ -793,7 +793,7 @@ if __name__ == "__main__":
         return await call_next(request)
     
     # Mount the Gradio app
-    app = gr.mount_gradio_app(app, demo, path=root_path, allowed_paths=["/app/samples"])
+        app = gr.mount_gradio_app(app, demo, path=root_path, allowed_paths=["/app/samples", "samples", "./samples"])
     
     # Inject Tailwind via a script to avoid @import restrictions
     @app.on_event("startup")
