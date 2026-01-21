@@ -15,6 +15,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libsndfile1 \
+    libsndfile1-dev \
+    libavcodec-extra \
     git \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -26,8 +28,9 @@ COPY . /app/
 # We use -e . to install in editable mode if the user wants to develop inside the container
 RUN pip install --no-cache-dir -e .
 
-# Create cache directory
-RUN mkdir -p /app/cache/huggingface && chmod 777 /app/cache/huggingface
+# Create cache directory and set permissions for samples
+RUN mkdir -p /app/cache/huggingface && chmod -R 777 /app/cache/huggingface
+RUN chmod -R 777 /app/samples
 
 # Expose the Gradio port
 EXPOSE 7860

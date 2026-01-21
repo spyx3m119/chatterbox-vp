@@ -201,7 +201,7 @@ def get_tts_voice_dropdown_options() -> list:
     options = []
     for voice_id, config in voices.items():
         label = f"{config['name']} - {config['description']}"
-        options.append((voice_id, label))
+        options.append((label, voice_id))
     print(f"🔍 DEBUG: get_tts_voice_dropdown_options() returning: {options}")
     return options
 
