@@ -632,7 +632,12 @@ def validate_sample_files_on_startup():
 # Run validation on startup
 validate_sample_files_on_startup()
 
-with gr.Blocks(head='<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">', title="Chatterbox AI - Beautiful Interface", css=CUSTOM_CSS) as demo:
+with gr.Blocks(
+    title="Chatterbox AI - Beautiful Interface", 
+    css=CUSTOM_CSS,
+    head='<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">',
+    allowed_paths=["/app/samples"]
+) as demo:
     
     gr.HTML('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">')
     gr.Markdown("# <div class='dashboard-header'>Chatterbox AI Voice Studio</div>")

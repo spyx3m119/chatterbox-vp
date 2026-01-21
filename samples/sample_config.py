@@ -197,10 +197,12 @@ def get_tts_voice_dropdown_options() -> list:
         List of tuples (value, label) for dropdown
     """
     voices = get_tts_sample_voices()
+    print(f"🔍 DEBUG: get_tts_sample_voices() returned {len(voices)} voices")
     options = []
     for voice_id, config in voices.items():
         label = f"{config['name']} - {config['description']}"
         options.append((voice_id, label))
+    print(f"🔍 DEBUG: get_tts_voice_dropdown_options() returning: {options}")
     return options
 
 def get_tts_voice_by_id(voice_id: str) -> Dict[str, str]:
