@@ -542,8 +542,7 @@ validate_sample_files_on_startup()
 with gr.Blocks(
     title="Chatterbox AI - Beautiful Interface", 
     css=CUSTOM_CSS,
-    head='<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">',
-    allowed_paths=["/app/samples"]
+    head='<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">'
 ) as demo:
     
     gr.HTML('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">')
@@ -921,7 +920,7 @@ if __name__ == "__main__":
         return await call_next(request)
     
     # Mount the Gradio app
-    app = gr.mount_gradio_app(app, demo, path=root_path)
+    app = gr.mount_gradio_app(app, demo, path=root_path, allowed_paths=["/app/samples"])
     
     print(f"🚀 Starting server on {server_name}:{server_port}")
     if root_path:

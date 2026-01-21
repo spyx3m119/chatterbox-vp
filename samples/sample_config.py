@@ -227,6 +227,17 @@ def validate_sample_files():
     """
     missing_files = []
     
+    print(f"🔍 DEBUG: SAMPLES_DIR is {SAMPLES_DIR}")
+    if os.path.exists(SAMPLES_DIR):
+        print(f"🔍 DEBUG: Contents of {SAMPLES_DIR}: {os.listdir(SAMPLES_DIR)}")
+        prompts_dir = SAMPLES_DIR / "prompts"
+        if os.path.exists(prompts_dir):
+            print(f"🔍 DEBUG: Contents of {prompts_dir}: {os.listdir(prompts_dir)}")
+        else:
+            print(f"❌ DEBUG: {prompts_dir} does NOT exist!")
+    else:
+        print(f"❌ DEBUG: {SAMPLES_DIR} does NOT exist!")
+
     # Check TTS default sample
     tts_path = get_sample_audio_path(TTS_DEFAULT_CONFIG["audio"])
     if not os.path.exists(tts_path):
