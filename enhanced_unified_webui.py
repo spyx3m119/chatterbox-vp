@@ -987,7 +987,15 @@ with gr.Blocks(title="Chatterbox AI - Beautiful Interface", css=CUSTOM_CSS) as d
     )
 
 if __name__ == "__main__":
+    import os
+    server_name = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
+    server_port = int(os.getenv("GRADIO_SERVER_PORT", 7860))
+    
     demo.queue(
         max_size=50,
         default_concurrency_limit=1,
-    ).launch(share=True)
+    ).launch(
+        server_name=server_name,
+        server_port=server_port,
+        share=False
+    )
