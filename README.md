@@ -32,8 +32,9 @@ Choose the right model for your application.
 
 ## Installation
 ```shell
-pip install chatterbox-tts
+pip install .
 ```
+Note: Since this is a private project, use `pip install .` from the root directory.
 
 Alternatively, you can install from source:
 ```shell
@@ -156,11 +157,11 @@ print(f"Extracted watermark: {watermark}")
 ## Citation
 If you find this model useful, please consider citing.
 ```
-@misc{chatterboxtts2025,
-  author       = {{Resemble AI}},
-  title        = {{Chatterbox-TTS}},
-  year         = {2025},
-  howpublished = {\url{https://github.com/resemble-ai/chatterbox}},
+@misc{chatterboxvp2026,
+  author       = {{Spyx3m119}},
+  title        = {{Chatterbox-VP}},
+  year         = {2026},
+  howpublished = {\url{https://github.com/spyx3m119/chatterbox-vp}},
   note         = {GitHub repository}
 }
 ```

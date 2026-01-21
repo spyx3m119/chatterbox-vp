@@ -1,7 +1,7 @@
 services:
   chatterbox:
     build: .
-    image: chatterbox-tts:latest
+    image: chatterbox-vp:latest
     container_name: chatterbox
     ports:
       - "7860:7860"
