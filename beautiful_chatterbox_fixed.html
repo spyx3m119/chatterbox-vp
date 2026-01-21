@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatterbox AI - Beautiful TTS Interface</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e3a8a',
+                            900: '#1e293b',
+                        },
+                        secondary: {
+                            50: '#f3e8ff',
+                            100: '#e9d5ff',
+                            200: '#d8b4fe',
+                            300: '#c084fc',
+                            400: '#a855f7',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        },
+                        accent: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'bounce-slow': 'bounce 2s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px #3b82f6' },
+                            '100%': { boxShadow: '0 0 20px #8b5cf6, 0 0 30px #ec4899' },
+                        }
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(59, 130, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3)',
+                        'neon-lg': '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(139, 92, 246, 0.3), 0 0 60px rgba(236, 72, 153, 0.2)',
+                        'card': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom styles for better integration */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure iframe is clickable */
+        .gradio-container {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            pointer-events: auto !important;
+        }
+        
+        .gradio-app {
+            background: transparent !important;
+            pointer-events: auto !important;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* Loading overlay styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .pulse-ring {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            border-top-color: #3b82f6;
+        }
+        
+        /* Custom button animations */
+        .btn-neon {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-neon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+            border-radius: 50%;
+            z-index: 0;
+        }
+        
+        .btn-neon:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Tab animations */
+        .tab-content {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        /* Audio player enhancements */
+        .audio-player-enhanced {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+            border: 1px solid #334155 !important;
+            border-radius: 12px !important;
+        }
+        
+        /* Gradio component overrides - Force application */
+        .gr-textbox, .gr-dropdown, .gr-audio, .gr-slider {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+            border: 2px solid #475569 !important;
+            color: #e2e8f0 !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+            pointer-events: auto !important;
+            z-index: 10 !important;
+        }
+        
+        .gr-textbox:focus, .gr-dropdown:focus, .gr-audio:focus, .gr-slider:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
+            transform: translateY(-2px) !important;
+            pointer-events: auto !important;
+        }
+        
+        .gr-textbox {
+            @apply text-base bg-gradient-to-br from-slate-800 to-slate-700 border-slate-600;
+            pointer-events: auto !important;
+        }
+        
+        .gr-textbox textarea {
+            @apply text-base leading-relaxed bg-transparent;
+            pointer-events: auto !important;
+        }
+        
+        /* Enhanced Audio Components */
+        .gr-audio {
+            @apply bg-gradient-to-r from-slate-700 to-slate-600 border-slate-600;
+            pointer-events: auto !important;
+        }
+        
+        .gr-audio .gr-audio-player {
+            @apply bg-slate-800 rounded-xl border border-slate-600 shadow-lg;
+            pointer-events: auto !important;
+        }
+        
+        /* Slider Enhancements */
+        .gr-slider {
+            @apply rounded-lg;
+            pointer-events: auto !important;
+        }
+        
+        .gr-slider input[type="range"] {
+            @apply h-3 rounded-lg bg-gradient-to-r from-slate-600 to-slate-500;
+            pointer-events: auto !important;
+        }
+        
+        /* Button Enhancements - Neon Style */
+        .gr-button-primary {
+            @apply bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-500 hover:via-purple-500 hover:to-pink-500 text-white font-bold py-4 px-8 rounded-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-lg text-sm uppercase tracking-wide border border-white/20;
+            pointer-events: auto !important;
+            z-index: 20 !important;
+        }
+        
+        .gr-button-primary:hover {
+            @apply -translate-y-2 shadow-purple-500/50 animate-pulse;
+            pointer-events: auto !important;
+        }
+        
+        .gr-button-secondary {
+            @apply bg-gradient-to-r from-slate-700 to-slate-600 border-2 border-slate-500 text-slate-100 font-semibold py-4 px-8 rounded-xl transition-all duration-300 hover:from-slate-600 hover:to-slate-500 hover:-translate-y-1 hover:border-slate-400;
+            pointer-events: auto !important;
+        }
+        
+        /* Event tags styling */
+        .tag-btn {
+            @apply min-w-fit w-auto h-12 text-sm bg-gradient-to-r from-slate-700 to-slate-600 border-2 border-slate-500 text-slate-100 rounded-full px-6 m-0 shadow-lg transition-all duration-300 font-semibold hover:from-slate-600 hover:to-slate-500 hover:-translate-y-2 hover:scale-110 hover:border-slate-400 hover:shadow-xl;
+            pointer-events: auto !important;
+            z-index: 15 !important;
+        }
+        
+        .tag-btn:hover {
+            @apply hover:from-slate-600 hover:to-slate-500 hover:-translate-y-2 hover:scale-110 hover:border-slate-400 hover:shadow-xl;
+            pointer-events: auto !important;
+        }
+        
+        /* Info and warning messages */
+        .gr-info {
+            @apply bg-gradient-to-r from-blue-900/50 to-blue-800/50 border-2 border-blue-500/50 text-blue-200 rounded-xl p-6 font-semibold shadow-lg;
+            pointer-events: auto !important;
+        }
+        
+        .audio-note {
+            @apply bg-gradient-to-r from-amber-900/50 to-amber-800/50 border-2 border-amber-500/50 rounded-xl p-6 text-amber-200 font-semibold shadow-lg;
+            pointer-events: auto !important;
+        }
+        
+        /* Progress bar */
+        .gr-progress-bar {
+            @apply h-4 rounded-lg bg-slate-700;
+            pointer-events: auto !important;
+        }
+        
+        .gr-progress-bar .progress {
+            @apply h-full rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 transition-width duration-300 shadow-lg;
+            pointer-events: auto !important;
+        }
+        
+        /* Accordion styling */
+        .gr-accordion {
+            @apply rounded-xl border-2 border-slate-600 bg-gradient-to-br from-slate-800 to-slate-700 shadow-xl;
+            pointer-events: auto !important;
+        }
+        
+        .gr-accordion .gr-accordion-header {
+            @apply font-bold text-slate-100 bg-gradient-to-r from-slate-700 to-slate-600 border-b-2 border-slate-600;
+            pointer-events: auto !important;
+        }
+        
+        .gr-accordion .gr-accordion-content {
+            @apply p-6 bg-slate-800/50;
+            pointer-events: auto !important;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .gr-textbox, .gr-dropdown, .gr-audio, .gr-slider {
+                font-size: 14px !important;
+                padding: 12px !important;
+            }
+            
+            .gr-button-primary, .gr-button-secondary {
+                padding: 10px 20px !important;
+                font-size: 14px !important;
+            }
+            
+            .tag-btn {
+                padding: 6px 12px !important;
+                font-size: 12px !important;
+                margin: 2px !important;
+            }
+        }
+        
+        /* Force all components to use the new styling */
+        .gr-textbox, .gr-dropdown, .gr-audio, .gr-slider, .gr-button, .gr-accordion, .gr-markdown, .gr-file, .gr-checkbox, .gr-radio {
+            pointer-events: auto !important;
+            z-index: 100 !important;
+        }
+        
+        /* Ensure iframe content is interactive */
+        #gradioIframe {
+            pointer-events: auto !important;
+            z-index: 1 !important;
+        }
+        
+        /* Make sure the iframe container doesn't block interactions */
+        .iframe-container {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen text-white">
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-slate-600 border-t-blue-500 rounded-full mx-auto pulse-ring"></div>
+            <h2 class="mt-6 text-2xl font-bold text-white">Initializing Chatterbox AI</h2>
+            <p class="mt-2 text-slate-400">Loading neural networks and audio processing...</p>
+            <div class="mt-4 flex space-x-2">
+                <div class="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+                <div class="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                <div class="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="flex min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-64 bg-gradient-to-b from-slate-900 to-slate-800 border-r border-slate-700 shadow-2xl fixed left-0 top-0 h-full z-40 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto">
+            <div class="p-6">
+                <!-- Logo/Header -->
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-neon">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Chatterbox AI</h1>
+                            <p class="text-xs text-slate-400">Voice Synthesis Studio</p>
+                        </div>
+                    </div>
+                    <button id="closeSidebar" class="lg:hidden text-slate-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="space-y-2">
+                    <button onclick="switchTab('tts')" class="nav-item active" data-tab="tts">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                        <span>Classic TTS</span>
+                    </button>
+                    
+                    <button onclick="switchTab('turbo')" class="nav-item" data-tab="turbo">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span>Turbo TTS</span>
+                    </button>
+                    
+                    <button onclick="switchTab('multilingual')" class="nav-item" data-tab="multilingual">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2V5.5a2.5 2.5 0 00-2.5-2.5h-1a2.5 2.5 0 00-2.5 2.5v.07c-2.7.9-5 2.7-5 5.5v2.945M3 11h18"></path>
+                        </svg>
+                        <span>Multilingual</span>
+                    </button>
+                    
+                    <button onclick="switchTab('vc')" class="nav-item" data-tab="vc">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 000 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 000-7.071V21l-2.829-2.829m0 0a5 5 0 00-7.071 0m7.072 0l-2.83-2.829"></path>
+                        </svg>
+                        <span>Voice Conversion</span>
+                    </button>
+                </nav>
+
+                <!-- Statistics -->
+                <div class="mt-8 pt-6 border-t border-slate-700">
+                    <h3 class="text-sm font-semibold text-slate-400 mb-3">System Status</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">GPU Memory</span>
+                            <span class="text-green-400 font-mono">Ready</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Models Loaded</span>
+                            <span class="text-green-400 font-mono">4/4</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">Audio Quality</span>
+                            <span class="text-blue-400 font-mono">HD</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-8 pt-6 border-t border-slate-700">
+                    <p class="text-xs text-slate-500 text-center">
+                        Built with ❤️ using Gradio & Tailwind CSS
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-slate-800 p-2 rounded-lg shadow-lg border border-slate-600 hover:bg-slate-700 transition-colors">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-64 p-6 lg:p-8">
+            <!-- Header -->
+            <header class="mb-8">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div>
+                        <h1 class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            AI Voice Studio
+                        </h1>
+                        <p class="text-slate-400 mt-2">Create professional-quality voiceovers with advanced AI technology</p>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-neon-lg btn-neon">
+                            Quick Start
+                        </button>
+                        <button class="border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white px-4 py-2 rounded-lg transition-all duration-300">
+                            Settings
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div id="contentArea" class="space-y-6">
+                <!-- Gradio App Container -->
+                <div class="bg-gradient-to-br from-slate-800/50 to-slate-700/50 backdrop-blur-sm border border-slate-600/50 rounded-2xl shadow-2xl overflow-hidden hover:shadow-neon-lg transition-all duration-300">
+                    <div class="p-4 bg-gradient-to-r from-slate-800/80 to-slate-700/80 border-b border-slate-600/50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                                <span class="text-sm font-medium text-slate-300">Chatterbox AI Interface</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                                <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gradio App Embed -->
+                    <div class="p-6 iframe-container">
+                        <div id="gradioApp" class="w-full min-h-[800px]">
+                            <!-- Gradio app will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-blue-900/20 to-blue-800/20 border border-blue-500/20 rounded-xl p-6 hover:shadow-neon transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-blue-300">Classic TTS</h3>
+                            <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400">High-quality text-to-speech with natural voice synthesis and customizable parameters.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-900/20 to-purple-800/20 border border-purple-500/20 rounded-xl p-6 hover:shadow-neon transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-purple-300">Turbo TTS</h3>
+                            <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400">Lightning-fast voice synthesis with advanced neural networks and real-time processing.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-900/20 to-green-800/20 border border-green-500/20 rounded-xl p-6 hover:shadow-neon transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-green-300">Voice Conversion</h3>
+                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 000 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 000-7.071V21l-2.829-2.829m0 0a5 5 0 00-7.071 0m7.072 0l-2.83-2.829"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400">Transform any voice into another with advanced voice conversion algorithms.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script>
+        // State management
+        let currentTab = 'tts';
+        let gradioAppLoaded = false;
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide loading overlay after 2 seconds
+            setTimeout(() => {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.style.display = 'none', 500);
+                }
+            }, 2000);
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const closeSidebar = document.getElementById('closeSidebar');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            closeSidebar.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 1024 && !sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+
+            // Initialize Gradio app
+            loadGradioApp();
+        });
+
+        // Tab switching functionality
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            // Update navigation active states
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                const isActive = btn.dataset.tab === tabName;
+                btn.classList.toggle('active', isActive);
+                btn.classList.toggle('bg-gradient-to-r', isActive);
+                btn.classList.toggle('from-blue-600', isActive);
+                btn.classList.toggle('to-purple-600', isActive);
+                btn.classList.toggle('border-l-4', isActive);
+                btn.classList.toggle('border-white/30', isActive);
+                btn.classList.toggle('shadow-lg', isActive);
+                
+                if (!isActive) {
+                    btn.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-purple-600', 'border-l-4', 'border-white/30', 'shadow-lg');
+                }
+            });
+
+            // Update content based on tab
+            updateContentForTab(tabName);
+            
+            // Close mobile menu
+            if (window.innerWidth < 1024) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+
+        // Update content for different tabs
+        function updateContentForTab(tabName) {
+            const contentArea = document.getElementById('contentArea');
+            const gradioApp = document.getElementById('gradioApp');
+            
+            // Add animation class
+            contentArea.classList.add('tab-content');
+            
+            // Update header based on tab
+            const header = contentArea.previousElementSibling;
+            if (header) {
+                const h1 = header.querySelector('h1');
+                const p = header.querySelector('p');
+                
+                switch(tabName) {
+                    case 'tts':
+                        h1.innerHTML = 'Classic <span class="text-blue-400">TTS</span> Studio';
+                        p.textContent = 'Create natural-sounding speech from text with customizable voice parameters';
+                        break;
+                    case 'turbo':
+                        h1.innerHTML = 'Turbo <span class="text-purple-400">TTS</span> Engine';
+                        p.textContent = 'Lightning-fast voice synthesis with advanced neural networks';
+                        break;
+                    case 'multilingual':
+                        h1.innerHTML = 'Multilingual <span class="text-green-400">TTS</span>';
+                        p.textContent = 'Generate speech in 23+ languages with native pronunciation';
+                        break;
+                    case 'vc':
+                        h1.innerHTML = 'Voice <span class="text-pink-400">Conversion</span>';
+                        p.textContent = 'Transform voices with advanced AI-powered conversion technology';
+                        break;
+                }
+            }
+
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Load Gradio application
+        function loadGradioApp() {
+            const gradioApp = document.getElementById('gradioApp');
+            
+            // Create iframe to embed the Gradio app
+            const gradioUrl = 'http://localhost:7860';
+            
+            gradioApp.innerHTML = `
+                <div class="relative w-full h-[800px] bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl border border-slate-600/50 overflow-hidden shadow-2xl iframe-container">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
+                    <iframe 
+                        id="gradioIframe"
+                        src="${gradioUrl}" 
+                        class="w-full h-full border-0 bg-transparent"
+                        allow="microphone; autoplay"
+                        loading="lazy"
+                        style="pointer-events: auto; z-index: 1;"
+                    ></iframe>
+                    <div class="absolute top-4 right-4 flex space-x-2">
+                        <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span class="text-xs text-slate-400">Connected</span>
+                    </div>
+                </div>
+            `;
+
+            // Add loading state to iframe
+            const iframe = document.getElementById('gradioIframe');
+            if (iframe) {
+                iframe.onload = function() {
+                    gradioAppLoaded = true;
+                    console.log('Gradio app loaded successfully');
+                    
+                    // Force enable pointer events on iframe content
+                    setTimeout(() => {
+                        try {
+                            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                            if (iframeDoc) {
+                                const style = iframeDoc.createElement('style');
+                                style.textContent = `
+                                    * {
+                                        pointer-events: auto !important;
+                                        z-index: 1000 !important;
+                                    }
+                                    body, html {
+                                        pointer-events: auto !important;
+                                    }
+                                `;
+                                iframeDoc.head.appendChild(style);
+                            }
+                        } catch (e) {
+                            console.log('Could not inject CSS into iframe:', e);
+                        }
+                    }, 1000);
+                };
+                
+                iframe.onerror = function() {
+                    gradioApp.innerHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-red-500 rounded-full mx-auto flex items-center justify-center">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="mt-4 text-xl font-bold text-white">Connection Error</h3>
+                            <p class="mt-2 text-slate-400">Unable to connect to the Gradio application</p>
+                            <div class="mt-6 flex justify-center space-x-4">
+                                <button onclick="loadGradioApp()" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-neon-lg transition-all duration-300 transform hover:scale-105">
+                                    Retry Connection
+                                </button>
+                                <button onclick="window.open('${gradioUrl}', '_blank')" class="border border-slate-600 text-slate-300 hover:border-slate-400 hover:text-white px-6 py-3 rounded-lg transition-all duration-300">
+                                    Open in New Tab
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                };
+            }
+        }
+
+        // Handle window resize for responsive behavior
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                // Always show sidebar on large screens
+                document.getElementById('sidebar').classList.remove('-translate-x-full');
+            }
+        });
+
+        // Add some interactive effects
+        document.addEventListener('mousemove', (e) => {
+            const cursorX = e.clientX / window.innerWidth;
+            const cursorY = e.clientY / window.innerHeight;
+            
+            // Subtle parallax effect on background
+            const main = document.querySelector('main');
+            if (main) {
+                main.style.transform = `translate(${cursorX * 2}px, ${cursorY * 2}px)`;
+            }
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        switchTab('tts');
+                        break;
+                    case '2':
+                        switchTab('turbo');
+                        break;
+                    case '3':
+                        switchTab('multilingual');
+                        break;
+                    case '4':
+                        switchTab('vc');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

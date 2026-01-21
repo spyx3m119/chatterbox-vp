@@ -1,0 +1,24 @@
+services:
+  chatterbox:
+    build: .
+    image: chatterbox-tts:latest
+    container_name: chatterbox
+    ports:
+      - "7860:7860"
+    volumes:
+      - .:/app
+      - hf_cache:/app/cache/huggingface
+    environment:
+      - GRADIO_SERVER_NAME=0.0.0.0
+    restart: unless-stopped
+    # Uncomment the following lines if you have an NVIDIA GPU and nvidia-docker installed
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  hf_cache:
