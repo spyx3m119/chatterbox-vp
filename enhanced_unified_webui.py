@@ -29,7 +29,7 @@ EVENT_TAGS = [
 # Language config for multilingual (copied from multilingual_app.py)
 LANGUAGE_CONFIG = {
     "ar": {
-        "audio": get_sample_audio_path("mtl_prompts/ar_f/ar_prompts2.flac"),
+        "audio": get_sample_audio_path("mtl_prompts/ar_prompts2.flac"),
         "text": "في الشهر الماضي، وصلنا إلى معلم جديد بمليارين من المشاهدات على قناتنا على يوتيوب."
     },
     "da": {
@@ -73,7 +73,7 @@ LANGUAGE_CONFIG = {
         "text": "Il mese scorso abbiamo raggiunto un nuovo traguardo: due miliardi di visualizzazioni sul nostro canale YouTube."
     },
     "ja": {
-        "audio": get_sample_audio_path("mtl_prompts/ja/ja_prompts1.flac"),
+        "audio": get_sample_audio_path("mtl_prompts/ja_prompts1.flac"),
         "text": "先月、私たちはYouTubeチャンネルで二十億回の再生回数という新たなマイルストーンに到達しました。"
     },
     "ko": {
@@ -632,8 +632,8 @@ def validate_sample_files_on_startup():
 # Run validation on startup
 validate_sample_files_on_startup()
 
-with gr.Blocks(title="Chatterbox AI - Beautiful Interface", css=CUSTOM_CSS) as demo:
-    gr.HTML('<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">')
+with gr.Blocks(head='<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">', title="Chatterbox AI - Beautiful Interface", css=CUSTOM_CSS) as demo:
+    
     gr.HTML('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">')
     gr.Markdown("# <div class='dashboard-header'>Chatterbox AI Voice Studio</div>")
     gr.Markdown("### <div class='section-title'>A unified interface for all Chatterbox TTS and Voice Conversion features.</div>")
